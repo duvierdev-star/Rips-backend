@@ -10,7 +10,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+    origin: '*', // Permitir todas las conexiones. Para mayor seguridad, puedes poner el dominio de tu frontend: 'https://rips-frontend-lovat.vercel.app'
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json({ limit: '50mb' }));
 
 // Static files setup
@@ -80,7 +84,13 @@ app.post('/api/process-image', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Open http://localhost:${PORT} to view the app`);
-});
+// Solo iniciar el servidor si no estamos en Vercel (Vercel usa Serverless Functions y no requiere app.listen)
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+        console.log(`Open http://localhost:${PORT} to view the app`);
+    });
+}
+
+// Exportar la aplicación para que Vercel la pueda procesar
+export default app;
